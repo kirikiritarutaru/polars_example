@@ -15,6 +15,33 @@ def polars_ten_line():
     print(df_agg)
 
 
+def agg_example():
+    # データ読み込み
+    df = pl.read_csv("https://j.mp/iriscsv")
+    df_agg = df.groupby('species').agg([  # speciesでgroupby
+        pl.col('sepal_length').min().alias('sepal_length_min'),  # sepal_length の最小値取り出してリネーム
+        pl.col('sepal_length').max().alias('sepal_length_max'),  # sepal_length の最大値取り出してリネーム
+        (pl.col('sepal_length') - pl.col('sepal_width')).mean().alias('sepal_length_width_diff_mean'),
+        # sepal_lengthとsepal_widthの差の平均を計算しりネーム
+    ])
+    print(df_agg)
+
+
+def apply_example():
+    # データ読み込み
+    df = pl.read_csv("https://j.mp/iriscsv")
+    # 超はや条件分岐のapply処理
+    df_app = df.with_column(
+        pl.when((pl.col('sepal_length') + pl.col('sepal_width') % 2 == 0) | (pl.col('sepal_length') > 5.6))
+        .then('い')
+        .when((pl.col('sepal_width') * 2) > 6)
+        .then('ろ')
+        .otherwise('は')
+        .alias('c')
+    )
+    print(df_app)
+
+
 def user_guide_example():
     df = pl.DataFrame(
         {
@@ -43,4 +70,6 @@ def user_guide_example():
 
 if __name__ == '__main__':
     # polars_ten_line()
-    user_guide_example()
+    # agg_example()
+    apply_example()
+    # user_guide_example()
