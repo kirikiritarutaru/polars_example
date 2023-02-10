@@ -1,9 +1,12 @@
 import polars as pl
 
+# 参考：
+
 
 def polars_ten_line():
     # データ読み込み
     df = pl.read_csv("https://j.mp/iriscsv")
+    # pandasと比較して見通しよく書ける
     df_agg = (
         df
         .select([pl.col("^sepal_.*$"), pl.col("species")])           # 列の選択
@@ -31,6 +34,7 @@ def apply_example():
     # データ読み込み
     df = pl.read_csv("https://j.mp/iriscsv")
     # 超はや条件分岐のapply処理
+    # pandasと比較して高速に処理できる
     df_app = df.with_column(
         pl.when((pl.col('sepal_length') + pl.col('sepal_width') % 2 == 0) | (pl.col('sepal_length') > 5.6))
         .then('い')
@@ -40,6 +44,21 @@ def apply_example():
         .alias('c')
     )
     print(df_app)
+
+
+def lazy_example():
+    # データ読み込み
+    df = pl.read_csv("https://j.mp/iriscsv")
+    # 遅延評価：Polars内部でクエリの最適化や並列実行を行い、高速に指示した一連の処理を実行してくれる機能
+    df_lazy = df.lazy().with_columns(  # ←lazy以降の処理を遅延評価
+        pl.when((pl.col('sepal_length') + pl.col('sepal_width') % 2 == 0) | (pl.col('sepal_length') > 5.6))
+        .then('い')
+        .when((pl.col('sepal_width') * 2) > 6)
+        .then('ろ')
+        .otherwise('は')
+        .alias('c')
+    ).collect()  # ←まとめて実行
+    print(df_lazy)
 
 
 def user_guide_example():
@@ -71,5 +90,6 @@ def user_guide_example():
 if __name__ == '__main__':
     # polars_ten_line()
     # agg_example()
-    apply_example()
+    # apply_example()
+    lazy_example()
     # user_guide_example()
